@@ -17,7 +17,7 @@ little_clean:
 
 uninstall:
 	rm -rf obj
-	rm calc
+	rm libmx.a
 
 clean:
 	rm -rf src
