@@ -1,29 +1,35 @@
-all: copy MINILIBMX little_clean
+NAME = libmx.a
 
-copy:
-	mkdir obj
-	cp inc/*.h obj/
-	cp src/*.c obj/
+SRC_FILES = $(wildcard src/*.c)
+OBJ_FILES = $(addprefix obj/, $(notdir $(SRC_FILES:%.c=%.o)))
+INC_FILES = $(wildcard inc/*.h)
 
-MINILIBMX: object.o
+CC = clang
+CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic -g \
 
-object.o:
-	clang -c -std=c11 -Wall -Wextra -Werror -Wpedantic obj/*.c
-	ar -rc libmx.a *.o
-	rm *.o
+MKDIR = mkdir -p
+RM = rm -rf
 
-little_clean:
-	rm -rf obj
+all: clean $(NAME)
 
-uninstall:
-	rm -rf obj
-	rm libmx.a
+$(NAME): $(OBJ_FILES)
+	@ar rcs $@ $^
+
+$(OBJ_FILES): | obj
+
+obj/%.o: src/%.c $(INC_FILES)
+	@clang $(CFLAGS) -c $< -o $@ -I inc
+
+obj:
+	@$(MKDIR) $@
 
 clean:
-	rm -rf src
-	rm -rf inc
-	rm -rf obj
+	@$(RM) obj
 
-reinstall:
-	make uninstall
-	make
+uninstall:
+	@$(RM) obj
+	@$(RM) $(NAME)
+
+reinstall: uninstall all
+
+.PHONY: all uninstall clean reinstall
